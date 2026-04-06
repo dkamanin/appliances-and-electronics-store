@@ -1,0 +1,60 @@
+[versions]
+assertj = "3.27.7" # fix CVE-2026-24400 (XXE vulnerability)
+checkstyle = "13.0.0"
+datafaker = "2.5.3"
+googleJavaFormat = "1.35.0"
+instancio = "3.3.0"
+jacoco = "0.8.14"
+java = "21"
+jsonUnitAssertj = "4.1.0"
+junit-jupiter = "5.11.4" # Align with Spring Boot 3.4.3
+junit-platform = "1.11.4" # Align with Spring Boot 3.4.3
+jwt = "0.12.6"
+mapstruct = "1.5.5.Final"
+mockito = "5.14.2"
+spotless = "8.2.1"
+springBoot = "3.4.3"
+
+[libraries]
+h2-database = { group = "com.h2database", name = "h2" }
+jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core" }
+json-webtoken-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jwt" }
+json-webtoken-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jwt" }
+json-webtoken-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jwt" }
+lombok = { group = "org.projectlombok", name = "lombok" }
+mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstruct" }
+mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstruct" }
+postgresql = { group = "org.postgresql", name = "postgresql" }
+spring-boot-starter = { group = "org.springframework.boot", name = "spring-boot-starter" }
+spring-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
+spring-security = { group = "org.springframework.boot", name = "spring-boot-starter-security" }
+spring-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
+spring-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
+
+# Test Dependencies
+assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
+datafaker = { group = "net.datafaker", name = "datafaker", version.ref = "datafaker" }
+instancio = { group = "org.instancio", name = "instancio-junit", version.ref = "instancio" }
+json-unit-assertj = { group = "net.javacrumbs.json-unit", name = "json-unit-assertj", version.ref = "jsonUnitAssertj" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-platform" }
+mockito = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
+spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
+spring-boot-testcontainers = { group = "org.springframework.boot", name = "spring-boot-testcontainers" }
+spring-security-test = { group = "org.springframework.security", name = "spring-security-test" }
+testcontainers-postgresql = { group = "org.testcontainers", name = "postgresql" }
+
+# Dependencies of the included build-logic
+spotless = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
+spring-plugin = { group = "org.springframework.boot", name = "org.springframework.boot.gradle.plugin", version.ref = "springBoot" }
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+
+# Plugins defined by this project
+maconi-jvm-library = { id = "maconi.jvm.library" }
+maconi-jvm-library-jacoco = { id = "maconi.jvm.library.jacoco" }
+maconi-jvm-library-test = { id = "maconi.jvm.library.test" }
+maconi-root = { id = "maconi.root" }
+maconi-spring-library = { id = "maconi.spring.library" }
+maconi-spring-library-test = { id = "maconi.spring.library.test" }
