@@ -61,7 +61,7 @@ private fun ensureNoDependencies(
     dependencies.all {
         val dependencyInfo =
             when (this) {
-                is ProjectDependency -> "'project($path)' dependency"
+                is ProjectDependency -> "'project(\"$path\")' dependency"
                 is FileCollectionDependency -> "file dependency '${files.asPath}'"
                 is ExternalModuleDependency -> "'$group:$name:$version' external dependency"
                 else -> "'$group:$name:$version' dependency"
@@ -111,7 +111,7 @@ private fun checkApplicationLayerDependencies(
                 
                 The application layer must only have project dependency on the domain layer.
                 
-                To fix this, remove the 'project('$path')' dependency from the 'build.gradle.kts' file.
+                To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
                 """.trimIndent(),
             )
         }
@@ -123,14 +123,19 @@ private fun checkInfraLayerDependencies(
     projectPath: String,
 ) {
     dependencies.configureEach {
-        if (this is ProjectDependency && !path.equals(projectPath) && !path.endsWith(":api")) {
+        val moduleName = projectPath.substringBeforeLast(":infra")
+        if (this is ProjectDependency &&
+            !path.equals(":maconi-shared") &&
+            !path.endsWith(":api") &&
+            !path.contains(moduleName)
+        ) {
             throw InvalidUserDataException(
                 """
                 Invalid configuration detected for '$projectPath'.
                 
-                For cross-module dependencies, the infra layer must only depend on api modules.
+                For cross-module dependencies, the infra layer must only depend on api modules, except common 'maconi-shared' module.
                 
-                To fix this, remove the 'project('$path')' dependency from the 'build.gradle.kts' file".
+                To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
                 """.trimIndent(),
             )
         }
