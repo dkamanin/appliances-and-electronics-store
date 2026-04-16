@@ -10,6 +10,3 @@ labels: chore
 ### Tasks
 - [ ] 
 
-### Acceptance Criteria
-- [ ] 
-
