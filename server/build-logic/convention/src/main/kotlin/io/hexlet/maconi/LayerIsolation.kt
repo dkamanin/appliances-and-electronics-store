@@ -34,11 +34,8 @@ internal fun Project.configureLayerIsolation() {
                         projectPath.equals(":maconi-shared") -> checkSharedModuleDependencies(dependencies, projectPath)
                         projectPath.endsWith(":api") -> checkApiModuleDependencies(dependencies, projectPath)
                         projectPath.endsWith(":domain") -> checkDomainLayerDependencies(dependencies, projectPath)
+                        projectPath.endsWith(":application") -> checkApplicationLayerDependencies(dependencies, projectPath)
                     }
-                }
-
-                projectPath.endsWith(":application") -> {
-                    checkApplicationLayerDependencies(dependencies, projectPath)
                 }
 
                 projectPath.endsWith(":infra") -> {
@@ -54,7 +51,7 @@ private fun ensureNoDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
-    dependencies.all {
+    dependencies.configureEach {
         val dependencyInfo =
             when (this) {
                 is ProjectDependency -> "'project(\"$path\")' dependency"
@@ -92,7 +89,36 @@ private fun checkDomainLayerDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
-    ensureNoDependencies("domain layer", dependencies, projectPath)
+    dependencies.configureEach {
+        val dependencyInfo =
+            when (this) {
+                is FileCollectionDependency -> "file dependency '${files.asPath}'"
+                is ExternalModuleDependency -> "'$group:$name:$version' external dependency"
+                else -> "'$group:$name:$version' dependency"
+            }
+        if (this is ProjectDependency && !path.contains(":maconi-shared")) {
+            throw InvalidUserDataException(
+                """
+                Invalid configuration detected for '$projectPath'.
+                
+                The domain layer must only have project dependency on the shared module.
+                
+                To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
+                """.trimIndent(),
+            )
+        }
+        if (this !is ProjectDependency) {
+            throw InvalidUserDataException(
+                """
+                Invalid configuration detected for '$projectPath'.
+
+                The domain layer must only have project dependency on the shared module.
+
+                To fix this, remove the $dependencyInfo from the 'build.gradle.kts' file.
+                """.trimIndent(),
+            )
+        }
+    }
 }
 
 private fun checkApplicationLayerDependencies(
@@ -100,16 +126,22 @@ private fun checkApplicationLayerDependencies(
     projectPath: String,
 ) {
     dependencies.configureEach {
-        if (this is ProjectDependency && !this.path.endsWith(":domain")) {
-            throw InvalidUserDataException(
-                """
-                Invalid configuration detected for '$projectPath'.
-                
-                The application layer must only have project dependency on the domain layer.
-                
-                To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
-                """.trimIndent(),
-            )
+        val moduleName = projectPath.substringBeforeLast(":application")
+        if (this is ProjectDependency) {
+            val isMaconiShared = path.endsWith(":maconi-shared")
+            val isMatchesModule = path.contains(moduleName)
+            val isDomain = path.endsWith(":domain")
+            if (!isMaconiShared && !(isMatchesModule && isDomain)) {
+                throw InvalidUserDataException(
+                    """
+                    Invalid configuration detected for '$projectPath'.
+                    
+                    The application layer must only have project dependency on its corresponding domain layer and the shared module.
+                    
+                    To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
+                    """.trimIndent(),
+                )
+            }
         }
     }
 }
