@@ -7,10 +7,15 @@
 package io.hexlet.maconi
 
 import org.gradle.api.Project
+import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.withType
+import org.gradle.testing.jacoco.plugins.JacocoCoverageReport
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
@@ -61,7 +66,7 @@ internal fun Project.configureJacoco(extension: JacocoCoverageExtension) {
                         .asFile,
                     "index.html",
                 )
-            println("Test coverage report link: ${reportFile.toURI()}")
+            println("Test coverage report link for '$path' module: ${reportFile.toURI()}")
         }
     }
     tasks.withType<JacocoCoverageVerification>().configureEach {
@@ -76,6 +81,28 @@ internal fun Project.configureJacoco(extension: JacocoCoverageExtension) {
             rule {
                 limit {
                     minimum = extension.minPercentage.get().toBigDecimal()
+                }
+            }
+        }
+    }
+    rootProject.extensions.getByType<JacocoAggregationExtension>().includedProjectPaths.add(path)
+}
+
+internal fun Project.registerJacocoAggregation(extension: JacocoAggregationExtension) {
+    extension.includedProjectPaths.all {
+        dependencies {
+            add("jacocoAggregation", project(this@all))
+        }
+    }
+
+    configure<ReportingExtension> {
+        reports {
+            create<JacocoCoverageReport>("jacocoAggregatedReport") {
+                testSuiteName.set("test")
+            }.reportTask.configure {
+                doLast {
+                    val reportFile = File(reports.html.outputLocation.get().asFile, "index.html")
+                    println("Aggregated test coverage report link: ${reportFile.toURI()}")
                 }
             }
         }
