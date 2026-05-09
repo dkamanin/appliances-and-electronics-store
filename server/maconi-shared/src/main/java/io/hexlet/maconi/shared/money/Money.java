@@ -11,12 +11,13 @@ import io.hexlet.maconi.shared.exceptions.DomainValidationException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.util.Currency;
 import java.util.Locale;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 public record Money(Currency currency, BigDecimal amount) implements Comparable<Money> {
-    private static final int SCALE = 2;
+    private static final Currency USD = Currency.getInstance("USD");
     private static final RoundingMode ROUNDING = RoundingMode.HALF_EVEN;
 
     public Money {
@@ -26,11 +27,24 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
         if (amount == null) {
             throw new DomainValidationException("Amount must not be null");
         }
-        amount = amount.setScale(SCALE, ROUNDING);
+        int scale = currency.getDefaultFractionDigits();
+        amount = amount.setScale(scale, ROUNDING);
+    }
+
+    public static Money of(Currency currency, BigDecimal amount) {
+        return new Money(currency, amount);
+    }
+
+    public static Money of(BigDecimal amount) {
+        return of(USD, amount);
+    }
+
+    public static Money of(long amount) {
+        return of(BigDecimal.valueOf(amount));
     }
 
     public static Money zero() {
-        return new Money(Currency.USD, BigDecimal.ZERO);
+        return new Money(USD, BigDecimal.ZERO);
     }
 
     public Money negate() {
@@ -66,7 +80,9 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
         if (divisor.compareTo(BigDecimal.ZERO) == 0) {
             throw new DomainValidationException("Cannot divide by zero");
         }
-        return new Money(currency, amount.divide(divisor, SCALE, ROUNDING));
+        int scale = currency.getDefaultFractionDigits();
+        BigDecimal result = amount.divide(divisor, scale, ROUNDING);
+        return new Money(currency, result);
     }
 
     public Money divide(long divisor) {
@@ -96,11 +112,13 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
     }
 
     public String format() {
-        if (currency == Currency.USD) {
+        if (currency.equals(USD)) {
             NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
             return formatter.format(amount);
         }
-        return amount.toString();
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        formatter.setCurrency(currency);
+        return formatter.format(amount);
     }
 
     private void requireSameCurrency(Money money) {
@@ -111,9 +129,24 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
 
     @Override
     public int compareTo(@NonNull Money money) {
-        if (!currency.equals(money.currency)) {
-            return currency.compareTo(money.currency);
+        if (!this.currency.equals(money.currency)) {
+            throw new BusinessRuleViolationException(
+                    "Cannot compare Money objects with different currencies");
         }
-        return amount.compareTo(money.amount);
+        return this.amount.compareTo(money.amount);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Money money = (Money) o;
+        return currency.equals(money.currency) && amount.compareTo(money.amount) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        // Normalize BigDecimal for hashCode to avoid collisions
+        return Objects.hash(currency, amount.stripTrailingZeros());
     }
 }
