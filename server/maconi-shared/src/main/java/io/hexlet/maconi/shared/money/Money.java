@@ -138,8 +138,12 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Money money = (Money) o;
         return currency.equals(money.currency) && amount.compareTo(money.amount) == 0;
     }
