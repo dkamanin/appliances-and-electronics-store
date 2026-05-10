@@ -34,8 +34,7 @@ class OrderNumberTest {
         @DisplayName("should reject null value")
         void rejectsNullValue() {
             assertThatThrownBy(() -> new OrderNumber(null))
-                    .isExactlyInstanceOf(NullPointerException.class)
-                    .hasMessage("value must not be null");
+                    .isExactlyInstanceOf(NullPointerException.class);
         }
 
         @Test
@@ -91,8 +90,7 @@ class OrderNumberTest {
         @DisplayName("should reject null OrderId during creation")
         void rejectsNullOrderId() {
             assertThatThrownBy(() -> OrderNumber.create(null))
-                    .isExactlyInstanceOf(NullPointerException.class)
-                    .hasMessage("orderId must not be null");
+                    .isExactlyInstanceOf(NullPointerException.class);
         }
     }
 

@@ -34,8 +34,7 @@ class CategoryIdTest {
         @DisplayName("should reject null string")
         void rejectsNullString() {
             assertThatThrownBy(() -> CategoryId.of(null))
-                    .isExactlyInstanceOf(NullPointerException.class)
-                    .hasMessage("Category identifier must not be null");
+                    .isExactlyInstanceOf(NullPointerException.class);
         }
 
         @Test

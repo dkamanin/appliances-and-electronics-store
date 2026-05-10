@@ -27,8 +27,6 @@ public record OrderNumber(@NonNull String value) implements DomainIdentifier<Str
     }
 
     public static OrderNumber create(@NonNull OrderId orderId) {
-        Objects.requireNonNull(orderId, "orderId must not be null");
-
         String uuid = orderId.value().toString();
         String body = uuid.substring(0, BODY_LENGTH).toUpperCase();
 
@@ -36,7 +34,6 @@ public record OrderNumber(@NonNull String value) implements DomainIdentifier<Str
     }
 
     private static void validate(@NonNull String value) {
-        Objects.requireNonNull(value, "value must not be null");
         if (value.length() != TOTAL_LENGTH) {
             throw new DomainValidationException(
                     "Order number must have exactly " + TOTAL_LENGTH + " characters");

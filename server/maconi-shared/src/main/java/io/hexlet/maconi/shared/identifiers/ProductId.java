@@ -7,10 +7,10 @@
 package io.hexlet.maconi.shared.identifiers;
 
 import io.hexlet.maconi.shared.exceptions.DomainValidationException;
-import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
-public record ProductId(UUID value) implements DomainIdentifier<UUID> {
+public record ProductId(@NonNull UUID value) implements DomainIdentifier<UUID> {
     public ProductId {
         if (value == null) {
             throw new DomainValidationException("Product identifier must not be null");
@@ -21,8 +21,7 @@ public record ProductId(UUID value) implements DomainIdentifier<UUID> {
         return new ProductId(UUID.randomUUID());
     }
 
-    public static ProductId of(String value) {
-        Objects.requireNonNull(value, "Product identifier must not be null");
+    public static ProductId of(@NonNull String value) {
         if (value.isBlank()) {
             throw new DomainValidationException("Product identifier must not be blank");
         }

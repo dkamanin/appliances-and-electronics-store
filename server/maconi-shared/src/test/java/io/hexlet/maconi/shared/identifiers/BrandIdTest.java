@@ -34,8 +34,7 @@ class BrandIdTest {
         @DisplayName("should reject null string")
         void rejectsNullString() {
             assertThatThrownBy(() -> BrandId.of(null))
-                    .isExactlyInstanceOf(NullPointerException.class)
-                    .hasMessage("Brand identifier must not be null");
+                    .isExactlyInstanceOf(NullPointerException.class);
         }
 
         @Test

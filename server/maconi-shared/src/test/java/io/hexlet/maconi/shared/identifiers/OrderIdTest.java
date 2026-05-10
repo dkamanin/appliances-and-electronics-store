@@ -34,8 +34,7 @@ class OrderIdTest {
         @DisplayName("should reject null string")
         void rejectsNullString() {
             assertThatThrownBy(() -> OrderId.of(null))
-                    .isExactlyInstanceOf(NullPointerException.class)
-                    .hasMessage("Order identifier must not be null");
+                    .isExactlyInstanceOf(NullPointerException.class);
         }
 
         @Test

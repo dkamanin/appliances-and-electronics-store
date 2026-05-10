@@ -16,7 +16,8 @@ import java.util.Locale;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
-public record Money(Currency currency, BigDecimal amount) implements Comparable<Money> {
+public record Money(@NonNull Currency currency, @NonNull BigDecimal amount)
+        implements Comparable<Money> {
     private static final Currency USD = Currency.getInstance("USD");
     private static final RoundingMode ROUNDING = RoundingMode.HALF_EVEN;
 
@@ -31,16 +32,16 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
         amount = amount.setScale(scale, ROUNDING);
     }
 
-    public static Money of(Currency currency, BigDecimal amount) {
+    public static Money of(@NonNull Currency currency, @NonNull BigDecimal amount) {
         return new Money(currency, amount);
     }
 
-    public static Money of(BigDecimal amount) {
+    public static Money of(@NonNull BigDecimal amount) {
         return of(USD, amount);
     }
 
     public static Money of(long amount) {
-        return of(BigDecimal.valueOf(amount));
+        return of(USD, BigDecimal.valueOf(amount));
     }
 
     public static Money zero() {
@@ -55,19 +56,18 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
         return isNegative() ? negate() : this;
     }
 
-    public Money add(Money money) {
+    public Money add(@NonNull Money money) {
         requireSameCurrency(money);
         return new Money(currency, amount.add(money.amount));
     }
 
-    public Money subtract(Money money) {
+    public Money subtract(@NonNull Money money) {
         requireSameCurrency(money);
         BigDecimal result = amount.subtract(money.amount);
         return new Money(currency, result);
     }
 
-    public Money multiply(BigDecimal multiplier) {
-        Objects.requireNonNull(multiplier);
+    public Money multiply(@NonNull BigDecimal multiplier) {
         return new Money(currency, amount.multiply(multiplier));
     }
 
@@ -75,8 +75,7 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
         return multiply(BigDecimal.valueOf(multiplier));
     }
 
-    public Money divide(BigDecimal divisor) {
-        Objects.requireNonNull(divisor);
+    public Money divide(@NonNull BigDecimal divisor) {
         if (divisor.compareTo(BigDecimal.ZERO) == 0) {
             throw new DomainValidationException("Cannot divide by zero");
         }
@@ -101,12 +100,12 @@ public record Money(Currency currency, BigDecimal amount) implements Comparable<
         return amount.compareTo(BigDecimal.ZERO) > 0;
     }
 
-    public boolean isGreaterThan(Money money) {
+    public boolean isGreaterThan(@NonNull Money money) {
         requireSameCurrency(money);
         return amount.compareTo(money.amount) > 0;
     }
 
-    public boolean isGreaterThanOrEqual(Money money) {
+    public boolean isGreaterThanOrEqual(@NonNull Money money) {
         requireSameCurrency(money);
         return amount.compareTo(money.amount) >= 0;
     }
