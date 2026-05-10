@@ -7,6 +7,7 @@ instancio = "3.3.0"
 jacoco = "0.8.14"
 java = "21"
 jsonUnitAssertj = "4.1.0"
+jspecify = "1.0.0" # Align with Spring Boot 3.4.3
 junit-jupiter = "5.11.4" # Align with Spring Boot 3.4.3
 junit-platform = "1.11.4" # Align with Spring Boot 3.4.3
 jwt = "0.12.6"
@@ -21,6 +22,7 @@ jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core" }
 json-webtoken-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jwt" }
 json-webtoken-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jwt" }
 json-webtoken-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jwt" }
+jspecify = { group = "org.jspecify", name = "jspecify", version.ref = "jspecify"}
 lombok = { group = "org.projectlombok", name = "lombok" }
 mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstruct" }

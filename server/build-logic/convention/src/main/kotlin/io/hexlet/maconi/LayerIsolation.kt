@@ -22,6 +22,7 @@ import org.gradle.api.artifacts.ProjectDependency
  * 'Fail Fast' behavior during Gradle Sync.
  */
 val forbiddenConfigurationsForCleanModules = setOf("runtimeClasspath", "compileClasspath", "annotationProcessor")
+val allowedLibs = setOf("org.jspecify:jspecify")
 
 internal fun Project.configureLayerIsolation() {
     val projectPath = path
@@ -59,15 +60,17 @@ private fun ensureNoDependencies(
                 is ExternalModuleDependency -> "'$group:$name:$version' external dependency"
                 else -> "'$group:$name:$version' dependency"
             }
-        throw InvalidUserDataException(
-            """
-            Invalid configuration detected for '$projectPath'.
+        if (!allowedLibs.contains("$group:$name")) {
+            throw InvalidUserDataException(
+                """
+                Invalid configuration detected for '$projectPath'.
 
-            The $context must not have any dependencies.
+                The $context must not have any dependencies.
 
-            To fix this, remove the $dependencyInfo from the 'build.gradle.kts' file.
-            """.trimIndent(),
-        )
+                To fix this, remove the $dependencyInfo from the 'build.gradle.kts' file.
+                """.trimIndent(),
+            )
+        }
     }
 }
 

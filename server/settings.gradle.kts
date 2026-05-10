@@ -14,6 +14,8 @@ plugins {
 
 rootProject.name = "maconi-store-backend"
 
+include(":maconi-shared")
+
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
