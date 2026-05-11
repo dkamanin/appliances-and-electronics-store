@@ -1,0 +1,69 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: 55..90
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+      backend:
+        target: auto
+        threshold: 1%
+        flags: [backend]
+      frontend:
+        target: auto
+        threshold: 1%
+        flags: [frontend]
+
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+      backend:
+        target: auto
+        flags: [backend]
+      frontend:
+        target: auto
+        flags: [frontend]
+
+comment:
+  layout: "header, diff, flags, components"
+  require_changes: false
+
+components:
+  - name: "maconi-shared"
+    paths:
+      - server/maconi-shared/**
+
+ignore:
+  - "**/generated/**"
+  - "**/build/**"
+  - "**/*Test.java"
+
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: auto
+        threshold: 1%
+      - type: patch
+        target: auto
+        threshold: 1%
+
+  individual_flags:
+    - name: backend
+      paths:
+        - server/**
+      carryforward: true
+    - name: frontend
+      paths:
+        - client/**
+      carryforward: true
