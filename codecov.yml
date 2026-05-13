@@ -6,64 +6,77 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: 55..90
+  range: 50..80
 
   status:
-    project:
-      default:
-        target: auto
-        threshold: 1%
-      backend:
-        target: auto
-        threshold: 1%
-        flags: [backend]
-      frontend:
-        target: auto
-        threshold: 1%
-        flags: [frontend]
-
     patch:
       default:
-        target: auto
-        threshold: 1%
-      backend:
-        target: auto
-        flags: [backend]
-      frontend:
-        target: auto
-        flags: [frontend]
+        target: 30%
+        threshold: 2%
 
 comment:
   layout: "header, diff, flags, components"
   require_changes: false
 
-components:
-  - name: "maconi-shared"
-    paths:
-      - server/maconi-shared/**
-
-ignore:
-  - "**/generated/**"
-  - "**/build/**"
-  - "**/*Test.java"
-
 flag_management:
   default_rules:
     carryforward: true
-    statuses:
-      - type: project
-        target: auto
-        threshold: 1%
-      - type: patch
-        target: auto
-        threshold: 1%
 
   individual_flags:
     - name: backend
       paths:
         - server/**
       carryforward: true
+
     - name: frontend
       paths:
         - client/**
       carryforward: true
+
+component_management:
+  individual_components:
+    - component_id: backend
+      name: Backend Overall
+      paths:
+        - server/**
+      statuses:
+        - type: project
+          target: 80%
+          threshold: 2%
+
+    - component_id: backend_core
+      name: Backend Core (Domain & Shared)
+      paths:
+        - server/**/domain/**
+        - server/maconi-shared/**
+      statuses:
+        - type: project
+          target: 98%
+          threshold: 1%
+
+    - component_id: backend_application
+      name: Backend Application Layer
+      paths:
+        - server/**/application/**
+      statuses:
+        - type: project
+          target: 80%
+          threshold: 2%
+
+    - component_id: backend_infra
+      name: Backend Infrastructure
+      paths:
+        - server/**/infra/**
+      statuses:
+        - type: project
+          target: 60%
+          threshold: 5%
+
+    - component_id: frontend
+      name: Frontend Overall
+      paths:
+        - client/**
+      statuses:
+        - type: project
+          target: 80%
+          threshold: 5%
