@@ -46,8 +46,11 @@ jobs:
       - name: Setup Java and Gradle
         uses: ./.github/actions/setup-backend
 
-      - name: Run tests and generate coverage report
-        run: ./gradlew test jacocoAggregatedReport
+      - name: Run tests and check coverage verification
+        run: ./gradlew test jacocoTestCoverageVerification
+
+      - name: Generate coverage report
+        run: ./gradlew jacocoAggregatedReport
 
       - name: Upload coverage to Codecov
         if: ${{ !github.event.pull_request || !github.event.pull_request.head.repo.fork }}
