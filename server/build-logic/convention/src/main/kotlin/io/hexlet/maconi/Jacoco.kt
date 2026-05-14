@@ -80,7 +80,14 @@ internal fun Project.configureJacoco(extension: JacocoCoverageExtension) {
         violationRules {
             rule {
                 limit {
-                    minimum = extension.minPercentage.get().toBigDecimal()
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = extension.minLinePercentage.get().toBigDecimal()
+                }
+                limit {
+                    counter = "BRANCH"
+                    value = "COVEREDRATIO"
+                    minimum = extension.minBranchPercentage.get().toBigDecimal()
                 }
             }
         }

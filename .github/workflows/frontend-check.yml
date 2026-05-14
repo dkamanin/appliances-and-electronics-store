@@ -1,40 +1,70 @@
-name: check frontend
-on: push
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'client/**'
+      - '.github/workflows/frontend-check.yml'
+  pull_request:
+    paths:
+      - 'client/**'
+      - '.github/workflows/frontend-check.yml'
+
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./client
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Installing dependencies
-        run: npm ci
-#      - name: Linting
-#        run: npm run lint
-#  tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Setup Node.js
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: 20
-#      - name: Installing dependencies
-#        run: npm ci
-#      - name: Testing
-#        run: npm run test
-#      - name: Send code coverage report
-#        uses: paambaati/codeclimate-action@v9.0.0
-#        env:
-#          CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-#        with:
-#          debug: true
-#          workingDirectory: client
-#          coverageCommand: npm run coverage
-#          coverageLocations: coverage/lcov.info:lcov
+      - uses: actions/checkout@v6
 
-defaults:
-  run:
-    working-directory: ./client
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-frontend
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Linting
+        continue-on-error: true
+        run: npm run lint
+
+#  No tests implemented yet.
+#  Uncomment the section below once tests are added.
+
+#  test:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 30
+#    defaults:
+#      run:
+#        working-directory: ./client
+#    steps:
+#      - uses: actions/checkout@v6
+#
+#      - name: Setup Node.js
+#        uses: ./.github/actions/setup-frontend
+#
+#      - name: Install dependencies
+#        run: npm ci
+#
+#      - name: Run tests
+#        run: npm run test
+#
+#      - name: Generate coverage report
+#        run: npm run coverage
+#
+#      - name: Upload coverage to Codecov
+#        if: ${{ !github.event.pull_request || !github.event.pull_request.head.repo.fork }}
+#        uses: codecov/codecov-action@v6
+#        with:
+#          token: ${{ secrets.CODECOV_TOKEN }}
+#          files: coverage/lcov.info
+#          flags: frontend
+#          name: frontend
+#          fail_ci_if_error: true
+#          verbose: false
