@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 jobs:
-  lint:
+  backend-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -34,7 +34,7 @@ jobs:
         run: |
           ./gradlew checkstyleMain
           ./gradlew checkstyleTest
-  tests:
+  backend-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
