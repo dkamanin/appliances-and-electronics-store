@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 jobs:
-  lint:
+  frontend-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -37,7 +37,7 @@ jobs:
 #  No tests implemented yet.
 #  Uncomment the section below once tests are added.
 
-#  test:
+#  frontend-test:
 #    runs-on: ubuntu-latest
 #    timeout-minutes: 30
 #    defaults:
