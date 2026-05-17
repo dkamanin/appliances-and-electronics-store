@@ -3,19 +3,19 @@ name: Frontend CI
 on:
   push:
     branches: [main, develop]
-    paths:
-      - 'client/**'
-      - '.github/workflows/frontend-check.yml'
   pull_request:
-    paths:
-      - 'client/**'
-      - '.github/workflows/frontend-check.yml'
+    branches: [main, develop]
 
 permissions:
   contents: read
 
 jobs:
+  paths-filter:
+    uses: ./.github/workflows/paths-filter.yml
+
   frontend-lint:
+    needs: paths-filter
+    if: needs.paths-filter.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -31,13 +31,14 @@ jobs:
         run: npm ci
 
       - name: Linting
-        continue-on-error: true
         run: npm run lint
 
 #  No tests implemented yet.
 #  Uncomment the section below once tests are added.
 
 #  frontend-test:
+#    needs: paths-filter
+#    if: needs.paths-filter.outputs.frontend == 'true'
 #    runs-on: ubuntu-latest
 #    timeout-minutes: 30
 #    defaults:
@@ -68,3 +69,34 @@ jobs:
 #          name: frontend
 #          fail_ci_if_error: true
 #          verbose: false
+
+  frontend-ci-success:
+    needs: [paths-filter, frontend-lint]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check pipeline status
+        run: |
+          echo "Checking results..."
+          echo "Lint: ${{ needs.frontend-lint.result }}"
+
+          if [[ "${{ needs.frontend-lint.result }}" == "failure" ]]; then
+            echo "⚠️  WARNING: Frontend linting failed."
+            echo "This is known legacy debt. See Issue #11."
+            echo "The PR is not blocked, but please fix this eventually."
+          fi
+
+          # Uncomment this block once the 'frontend-test' job is enabled.
+          # Also remember to add 'frontend-test' to the 'needs' section above.
+
+          # if [[ "${{ needs.frontend-test.result }}" == "failure" ]]; then
+          #   echo "❌ One of the required jobs failed!"
+          #   exit 1
+          # fi
+
+          if [[ "${{ needs.frontend-lint.result }}" == "cancelled" ]]; then
+            echo "❌ Pipeline was cancelled!"
+            exit 1
+          fi
+
+          echo "✅ All relevant jobs passed or were skipped (Legacy lint ignored)."
