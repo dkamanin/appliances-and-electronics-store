@@ -3,19 +3,19 @@ name: Backend CI
 on:
   push:
     branches: [main, develop]
-    paths:
-      - 'server/**'
-      - '.github/workflows/backend-check.yml'
   pull_request:
-    paths:
-      - 'server/**'
-      - '.github/workflows/backend-check.yml'
+    branches: [main, develop]
 
 permissions:
   contents: read
 
 jobs:
+  paths-filter:
+    uses: ./.github/workflows/paths-filter.yml
+
   backend-lint:
+    needs: paths-filter
+    if: needs.paths-filter.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -34,7 +34,10 @@ jobs:
         run: |
           ./gradlew checkstyleMain
           ./gradlew checkstyleTest
+
   backend-test:
+    needs: paths-filter
+    if: needs.paths-filter.outputs.backend == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -62,3 +65,26 @@ jobs:
           name: backend
           fail_ci_if_error: true
           verbose: false
+
+  backend-ci-success:
+    needs: [paths-filter, backend-lint, backend-test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check pipeline status
+        run: |
+          echo "Checking results..."
+          echo "Lint: ${{ needs.backend-lint.result }}"
+          echo "Test: ${{ needs.backend-test.result }}"
+
+          if [[ "${{ needs.backend-lint.result }}" == "failure" || "${{ needs.backend-test.result }}" == "failure" ]]; then
+            echo "❌ One of the required jobs failed!"
+            exit 1
+          fi
+
+          if [[ "${{ needs.backend-lint.result }}" == "cancelled" || "${{ needs.backend-test.result }}" == "cancelled" ]]; then
+            echo "❌ Pipeline was cancelled!"
+            exit 1
+          fi
+
+          echo "✅ All relevant jobs passed or were skipped."
