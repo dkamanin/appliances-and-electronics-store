@@ -1,3 +1,21 @@
+| Backend | Frontend |
+| :--- | :--- |
+| [![Backend Status][be_status_svg]][be_actions] [![Backend Coverage][be_cov_svg]][be_cov_link] | [![Frontend Status][fe_status_svg]][fe_actions] [![Frontend Coverage][fe_cov_svg]][fe_cov_link] |
+
+[be_status_svg]: https://img.shields.io/github/actions/workflow/status/dkamanin/appliances-and-electronics-store/backend-check.yml?branch=develop&style=flat-square&label=status
+[fe_status_svg]: https://img.shields.io/github/actions/workflow/status/dkamanin/appliances-and-electronics-store/frontend-check.yml?branch=develop&style=flat-square&label=status
+
+[be_actions]: https://github.com/dkamanin/appliances-and-electronics-store/actions/workflows/backend-check.yml?query=branch%3Adevelop
+[fe_actions]: https://github.com/dkamanin/appliances-and-electronics-store/actions/workflows/frontend-check.yml?query=branch%3Adevelop
+
+[be_cov_svg]: https://img.shields.io/codecov/c/github/dkamanin/appliances-and-electronics-store/develop?flag=backend&style=flat-square&label=coverage
+[fe_cov_svg]: https://img.shields.io/codecov/c/github/dkamanin/appliances-and-electronics-store/develop?flag=frontend&style=flat-square&label=coverage
+
+[be_cov_link]: https://app.codecov.io/gh/dkamanin/appliances-and-electronics-store?components%5B0%5D=Backend%20Overall
+[fe_cov_link]: https://app.codecov.io/gh/dkamanin/appliances-and-electronics-store?components%5B0%5D=Frontend%20Overall
+
+---
+
 # Maconi — E-commerce Backend Showcase
 
 Maconi is a full-stack e-commerce platform designed to demonstrate production-grade backend engineering. The project's primary mission is to build a robust, maintainable server-side architecture using a **Modular Monolith** approach and **Domain-Driven Design (DDD)** principles, with modules implemented via **Clean Architecture**.
