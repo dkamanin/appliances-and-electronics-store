@@ -8,6 +8,7 @@ package io.hexlet.maconi
 
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.FileCollectionDependency
@@ -24,51 +25,85 @@ import org.gradle.api.artifacts.ProjectDependency
 val forbiddenConfigurationsForCleanModules = setOf("runtimeClasspath", "compileClasspath", "annotationProcessor")
 val allowedLibs = setOf("org.jspecify:jspecify")
 
+private const val SHARED_MODULE_PATH = ":maconi-shared"
+private const val API_MODULE_POSTFIX = ":api"
+private const val DOMAIN_LAYER_POSTFIX = ":domain"
+private const val APPLICATION_LAYER_POSTFIX = ":application"
+private const val INFRA_LAYER_POSTFIX = ":infra"
+
 internal fun Project.configureLayerIsolation() {
     val projectPath = path
-    configurations.configureEach {
-        val configurationName = name
-        incoming.beforeResolve {
-            when {
-                configurationName in forbiddenConfigurationsForCleanModules -> {
-                    when {
-                        projectPath.equals(":maconi-shared") -> checkSharedModuleDependencies(dependencies, projectPath)
-                        projectPath.endsWith(":api") -> checkApiModuleDependencies(dependencies, projectPath)
-                        projectPath.endsWith(":domain") -> checkDomainLayerDependencies(dependencies, projectPath)
-                        projectPath.endsWith(":application") -> checkApplicationLayerDependencies(dependencies, projectPath)
-                    }
-                }
 
-                projectPath.endsWith(":infra") -> {
-                    checkInfraLayerDependencies(dependencies, projectPath)
+    val isShared = projectPath == SHARED_MODULE_PATH
+    val isApi = projectPath.endsWith(API_MODULE_POSTFIX)
+    val isDomain = projectPath.endsWith(DOMAIN_LAYER_POSTFIX)
+    val isApplication = projectPath.endsWith(APPLICATION_LAYER_POSTFIX)
+    val isInfra = projectPath.endsWith(INFRA_LAYER_POSTFIX)
+
+    configurations.configureEach {
+        if (name in forbiddenConfigurationsForCleanModules) {
+            incoming.beforeResolve {
+                val isCompileClasspath = name == "compileClasspath"
+                when {
+                    isShared -> checkSharedModuleDependencies(dependencies, projectPath)
+                    isApi -> checkApiModuleDependencies(dependencies, projectPath)
+                    isDomain -> checkDomainLayerDependencies(dependencies, projectPath)
+                    isApplication && isCompileClasspath -> checkApplicationLayerDependencies(dependencies, projectPath)
+                    isInfra && isCompileClasspath -> checkInfraLayerDependencies(dependencies, projectPath)
                 }
             }
         }
     }
 }
 
-private fun ensureNoDependencies(
+internal fun Project.configureBoundedContextRootIsolation() {
+    val projectPath = path
+    configurations.configureEach {
+        val configurationName = name
+        incoming.beforeResolve {
+            when {
+                configurationName in forbiddenConfigurationsForCleanModules -> {
+                    ensureOnlyInternalSubmodules(dependencies, projectPath)
+                }
+            }
+        }
+    }
+}
+
+private fun ensureOnlyInternalSubmodules(
+    dependencies: DependencySet,
+    projectPath: String,
+) {
+    dependencies.configureEach {
+        val isInternalModule = this is ProjectDependency && path.startsWith("$projectPath:")
+
+        if (!isInternalModule) {
+            throw InvalidUserDataException(
+                formatMessage(
+                    projectPath,
+                    "Context root must only depend on its internal submodules.",
+                    this,
+                ),
+            )
+        }
+    }
+}
+
+private fun ensureNoDependenciesExceptAllowedLibs(
     context: String,
     dependencies: DependencySet,
     projectPath: String,
 ) {
     dependencies.configureEach {
-        val dependencyInfo =
-            when (this) {
-                is ProjectDependency -> "'project(\"$path\")' dependency"
-                is FileCollectionDependency -> "file dependency '${files.asPath}'"
-                is ExternalModuleDependency -> "'$group:$name:$version' external dependency"
-                else -> "'$group:$name:$version' dependency"
-            }
-        if (!allowedLibs.contains("$group:$name")) {
+        val isAllowedLib = allowedLibs.contains("$group:$name")
+
+        if (!isAllowedLib) {
             throw InvalidUserDataException(
-                """
-                Invalid configuration detected for '$projectPath'.
-
-                The $context must not have any dependencies.
-
-                To fix this, remove the $dependencyInfo from the 'build.gradle.kts' file.
-                """.trimIndent(),
+                formatMessage(
+                    projectPath,
+                    "$context must not have any project dependencies and may only use allowed external libraries (e.g., JSpecify)",
+                    this,
+                ),
             )
         }
     }
@@ -78,14 +113,14 @@ private fun checkSharedModuleDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
-    ensureNoDependencies("shared module", dependencies, projectPath)
+    ensureNoDependenciesExceptAllowedLibs("Shared module", dependencies, projectPath)
 }
 
 private fun checkApiModuleDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
-    ensureNoDependencies("api module", dependencies, projectPath)
+    ensureNoDependenciesExceptAllowedLibs("API module", dependencies, projectPath)
 }
 
 private fun checkDomainLayerDependencies(
@@ -93,32 +128,15 @@ private fun checkDomainLayerDependencies(
     projectPath: String,
 ) {
     dependencies.configureEach {
-        val dependencyInfo =
-            when (this) {
-                is FileCollectionDependency -> "file dependency '${files.asPath}'"
-                is ExternalModuleDependency -> "'$group:$name:$version' external dependency"
-                else -> "'$group:$name:$version' dependency"
-            }
-        if (this is ProjectDependency && !path.contains(":maconi-shared")) {
-            throw InvalidUserDataException(
-                """
-                Invalid configuration detected for '$projectPath'.
-                
-                The domain layer must only have project dependency on the shared module.
-                
-                To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
-                """.trimIndent(),
-            )
-        }
-        if (this !is ProjectDependency) {
-            throw InvalidUserDataException(
-                """
-                Invalid configuration detected for '$projectPath'.
+        val isShared = this is ProjectDependency && path == SHARED_MODULE_PATH
 
-                The domain layer must only have project dependency on the shared module.
-
-                To fix this, remove the $dependencyInfo from the 'build.gradle.kts' file.
-                """.trimIndent(),
+        if (!isShared) {
+            throw InvalidUserDataException(
+                formatMessage(
+                    projectPath,
+                    "Domain layer must only depend on the shared module.",
+                    this,
+                ),
             )
         }
     }
@@ -128,23 +146,21 @@ private fun checkApplicationLayerDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
+    val contextModuleName = projectPath.substringBeforeLast(APPLICATION_LAYER_POSTFIX)
     dependencies.configureEach {
-        val moduleName = projectPath.substringBeforeLast(":application")
-        if (this is ProjectDependency) {
-            val isMaconiShared = path.endsWith(":maconi-shared")
-            val isMatchesModule = path.contains(moduleName)
-            val isDomain = path.endsWith(":domain")
-            if (!isMaconiShared && !(isMatchesModule && isDomain)) {
-                throw InvalidUserDataException(
-                    """
-                    Invalid configuration detected for '$projectPath'.
-                    
-                    The application layer must only have project dependency on its corresponding domain layer and the shared module.
-                    
-                    To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
-                    """.trimIndent(),
-                )
-            }
+        if (this !is ProjectDependency) return@configureEach
+
+        val isShared = path == SHARED_MODULE_PATH
+        val isSameContextDomain = path == "$contextModuleName$DOMAIN_LAYER_POSTFIX"
+
+        if (!isShared && !isSameContextDomain) {
+            throw InvalidUserDataException(
+                formatMessage(
+                    projectPath,
+                    "Application layer must only depend on the shared module and the domain layer of the same context.",
+                    this,
+                ),
+            )
         }
     }
 }
@@ -153,22 +169,58 @@ private fun checkInfraLayerDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
+    val contextModuleName = projectPath.substringBeforeLast(INFRA_LAYER_POSTFIX)
     dependencies.configureEach {
-        val moduleName = projectPath.substringBeforeLast(":infra")
-        if (this is ProjectDependency &&
-            !path.equals(":maconi-shared") &&
-            !path.endsWith(":api") &&
-            !path.contains(moduleName)
-        ) {
+        if (this !is ProjectDependency) return@configureEach
+
+        val isShared = path == SHARED_MODULE_PATH
+        val isApiModule = path.endsWith(API_MODULE_POSTFIX)
+        val isSameContextModule = path.startsWith("$contextModuleName:")
+
+        if (!isShared && !isApiModule && !isSameContextModule) {
             throw InvalidUserDataException(
-                """
-                Invalid configuration detected for '$projectPath'.
-                
-                For cross-module dependencies, the infra layer must only depend on api modules, except common 'maconi-shared' module.
-                
-                To fix this, remove the 'project("$path")' dependency from the 'build.gradle.kts' file.
-                """.trimIndent(),
+                formatMessage(
+                    projectPath,
+                    "Infra layer must only depend on modules of the same context, the shared module, or 'api' layers of other contexts. May have any external dependencies.",
+                    this,
+                ),
             )
         }
     }
 }
+
+private fun formatMessage(location: String, message: String, dependency: Dependency): String {
+    val dependencyInfo = formatDependencyInfo(dependency)
+    return (
+        """
+        Invalid configuration detected for '$location'.
+        
+        $message
+        
+        To fix this, remove the $dependencyInfo from the 'build.gradle.kts' file.
+        """.trimIndent()
+    )
+}
+
+private fun formatDependencyInfo(dependency: Dependency): String =
+    dependency.run {
+        when (this) {
+            is ProjectDependency -> {
+                "'project(\"${path}\")' dependency"
+            }
+
+            is FileCollectionDependency -> {
+                "file dependency '${files.asPath}'"
+            }
+
+            is ExternalModuleDependency -> {
+                listOfNotNull(group, name, version)
+                    .joinToString(":", prefix = "'", postfix = "' external dependency")
+            }
+
+            else -> {
+                listOfNotNull(group, name, version)
+                    .joinToString(":", prefix = "'", postfix = "' dependency")
+            }
+        }
+    }
