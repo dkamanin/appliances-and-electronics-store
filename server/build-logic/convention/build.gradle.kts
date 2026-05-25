@@ -37,6 +37,10 @@ gradlePlugin {
             id = libs.plugins.maconi.spring.library.test.get().pluginId
             implementationClass = "SpringLibraryTestConventionPlugin"
         }
+        register("boundedContext") {
+            id = libs.plugins.maconi.bounded.context.get().pluginId
+            implementationClass = "BoundedContextConventionPlugin"
+        }
         register("root") {
             id = libs.plugins.maconi.root.get().pluginId
             implementationClass = "RootPlugin"

@@ -54,6 +54,7 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
 
 # Plugins defined by this project
+maconi-bounded-context = { id = "maconi.bounded.context" }
 maconi-jvm-library = { id = "maconi.jvm.library" }
 maconi-jvm-library-jacoco = { id = "maconi.jvm.library.jacoco" }
 maconi-jvm-library-test = { id = "maconi.jvm.library.test" }
