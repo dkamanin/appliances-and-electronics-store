@@ -81,27 +81,7 @@ private fun ensureOnlyInternalSubmodules(
             throw InvalidUserDataException(
                 formatMessage(
                     projectPath,
-                    "Context root must only depend on its internal submodules.",
-                    this,
-                ),
-            )
-        }
-    }
-}
-
-private fun ensureNoDependenciesExceptAllowedLibs(
-    context: String,
-    dependencies: DependencySet,
-    projectPath: String,
-) {
-    dependencies.configureEach {
-        val isAllowedLib = allowedLibs.contains("$group:$name")
-
-        if (!isAllowedLib) {
-            throw InvalidUserDataException(
-                formatMessage(
-                    projectPath,
-                    "$context must not have any project dependencies and may only use allowed external libraries (e.g., JSpecify)",
+                    "Context root modules must only depend on submodules within the same context.",
                     this,
                 ),
             )
@@ -113,14 +93,39 @@ private fun checkSharedModuleDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
-    ensureNoDependenciesExceptAllowedLibs("Shared module", dependencies, projectPath)
+    dependencies.configureEach {
+        val isAllowedLib = allowedLibs.contains("$group:$name")
+
+        if (!isAllowedLib) {
+            throw InvalidUserDataException(
+                formatMessage(
+                    projectPath,
+                    "Shared module cannot have project dependencies and is restricted to allowed external libraries (e.g., JSpecify).",
+                    this,
+                ),
+            )
+        }
+    }
 }
 
 private fun checkApiModuleDependencies(
     dependencies: DependencySet,
     projectPath: String,
 ) {
-    ensureNoDependenciesExceptAllowedLibs("API module", dependencies, projectPath)
+    dependencies.configureEach {
+        val isAllowedLib = allowedLibs.contains("$group:$name")
+        val isShared = this is ProjectDependency && path == SHARED_MODULE_PATH
+
+        if (!isShared && !isAllowedLib) {
+            throw InvalidUserDataException(
+                formatMessage(
+                    projectPath,
+                    "API modules must only depend on the shared module and allowed external libraries (e.g., JSpecify).",
+                    this,
+                ),
+            )
+        }
+    }
 }
 
 private fun checkDomainLayerDependencies(
@@ -152,12 +157,13 @@ private fun checkApplicationLayerDependencies(
 
         val isShared = path == SHARED_MODULE_PATH
         val isSameContextDomain = path == "$contextModuleName$DOMAIN_LAYER_POSTFIX"
+        val isApiModule = path.endsWith(API_MODULE_POSTFIX)
 
-        if (!isShared && !isSameContextDomain) {
+        if (!isShared && !isSameContextDomain && !isApiModule) {
             throw InvalidUserDataException(
                 formatMessage(
                     projectPath,
-                    "Application layer must only depend on the shared module and the domain layer of the same context.",
+                    "Application layer must only depend on the shared module, the domain layer within the same context, and any API module.",
                     this,
                 ),
             )
@@ -181,7 +187,7 @@ private fun checkInfraLayerDependencies(
             throw InvalidUserDataException(
                 formatMessage(
                     projectPath,
-                    "Infra layer must only depend on modules of the same context, the shared module, or 'api' layers of other contexts. May have any external dependencies.",
+                    "Infra layer must only depend on the shared module, modules within the same context, or API layers of other contexts.",
                     this,
                 ),
             )
