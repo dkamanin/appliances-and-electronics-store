@@ -16,6 +16,21 @@ rootProject.name = "maconi-store-backend"
 
 include(":maconi-shared")
 
+include(":maconi-cart")
+include(":maconi-cart:api")
+
+include(":maconi-catalog")
+include(":maconi-catalog:api")
+
+include(":maconi-inventory")
+include(":maconi-inventory:api")
+
+include(":maconi-orders")
+include(":maconi-orders:api")
+
+include(":maconi-payment")
+include(":maconi-payment:api")
+
 dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
