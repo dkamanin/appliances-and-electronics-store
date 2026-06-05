@@ -18,6 +18,10 @@ internal fun Project.configureSpotlessForJvm() {
             googleJavaFormat(libs.findVersion("googleJavaFormat").get().requiredVersion).aosp()
             endWithNewline()
         }
+        format("javaInfo") {
+            target("src/**/*-info.java")
+            licenseHeaderFile(rootDir.resolve("spotless/copyright.java"), "/\\*\\*|///|@|(open )?module|package")
+        }
         kotlinGradle {
             target("*.kts")
             licenseHeaderFile(rootDir.resolve("spotless/copyright.kts"), "(^(?![\\/ ]\\*).*$)")
