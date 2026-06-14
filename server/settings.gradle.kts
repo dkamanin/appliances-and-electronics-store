@@ -21,6 +21,7 @@ include(":maconi-cart:api")
 
 include(":maconi-catalog")
 include(":maconi-catalog:api")
+include(":maconi-catalog:domain")
 
 include(":maconi-inventory")
 include(":maconi-inventory:api")
