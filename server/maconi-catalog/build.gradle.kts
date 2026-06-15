@@ -10,4 +10,5 @@ plugins {
 
 dependencies {
     implementation(project(":maconi-catalog:api"))
+    implementation(project(":maconi-catalog:domain"))
 }
