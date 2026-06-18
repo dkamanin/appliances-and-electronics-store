@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-package io.hexlet.maconi.catalog.domain.model.product.vo;
+package io.hexlet.maconi.catalog.domain.model.shared;
 
 import io.hexlet.maconi.shared.exceptions.DomainValidationException;
 import io.hexlet.maconi.shared.identifiers.DomainIdentifier;
