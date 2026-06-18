@@ -2,7 +2,7 @@
 assertj = "3.27.7" # fix CVE-2026-24400 (XXE vulnerability)
 checkstyle = "13.0.0"
 datafaker = "2.5.3"
-googleJavaFormat = "1.35.0"
+palantirJavaFormat = "2.93.0"
 instancio = "3.3.0"
 jacoco = "0.8.14"
 java = "21"

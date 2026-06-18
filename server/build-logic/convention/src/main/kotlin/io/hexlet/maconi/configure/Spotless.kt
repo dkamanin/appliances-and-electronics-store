@@ -16,7 +16,7 @@ internal fun Project.configureSpotlessForJvm() {
         java {
             target("src/**/*.java")
             licenseHeaderFile(rootDir.resolve("spotless/copyright.java"))
-            googleJavaFormat(libs.findVersion("googleJavaFormat").get().requiredVersion).aosp()
+            palantirJavaFormat(libs.findVersion("palantirJavaFormat").get().requiredVersion)
             endWithNewline()
         }
         format("javaInfo") {
