@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-package io.hexlet.maconi
+package io.hexlet.maconi.configure
 
 import com.diffplug.gradle.spotless.SpotlessExtension
+import io.hexlet.maconi.extension.libs
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-package io.hexlet.maconi
+package io.hexlet.maconi.extension
 
 import org.gradle.api.DomainObjectSet
 

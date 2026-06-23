@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import io.hexlet.maconi.JacocoCoverageExtension
-import io.hexlet.maconi.configureJacoco
+import io.hexlet.maconi.configure.configureJacoco
+import io.hexlet.maconi.extension.JacocoCoverageExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

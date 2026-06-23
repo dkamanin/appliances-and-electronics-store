@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import io.hexlet.maconi.configureCheckstyle
-import io.hexlet.maconi.configureJavaLibrary
-import io.hexlet.maconi.configureLayerIsolation
-import io.hexlet.maconi.configureSpotlessForJvm
+import io.hexlet.maconi.configure.configureCheckstyle
+import io.hexlet.maconi.configure.configureJavaLibrary
+import io.hexlet.maconi.configure.configureLayerIsolation
+import io.hexlet.maconi.configure.configureNullability
+import io.hexlet.maconi.configure.configureSpotlessForJvm
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin
@@ -19,6 +20,7 @@ abstract class JvmLibraryConventionPlugin : Plugin<Project> {
             apply<JavaLibraryPlugin>()
             apply(plugin = "com.diffplug.spotless")
 
+            configureNullability()
             configureJavaLibrary()
             configureLayerIsolation()
             configureSpotlessForJvm()

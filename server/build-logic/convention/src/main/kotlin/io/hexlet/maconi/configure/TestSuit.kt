@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-package io.hexlet.maconi
+package io.hexlet.maconi.configure
 
+import io.hexlet.maconi.extension.libs
 import org.gradle.api.Project
 import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.gradle.kotlin.dsl.configure
