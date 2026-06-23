@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import io.hexlet.maconi.configureBaseTestSuite
+import io.hexlet.maconi.configure.configureBaseTestSuite
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JvmTestSuitePlugin

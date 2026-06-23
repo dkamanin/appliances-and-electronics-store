@@ -4,8 +4,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-package io.hexlet.maconi
+package io.hexlet.maconi.configure
 
+import io.hexlet.maconi.extension.JacocoAggregationExtension
+import io.hexlet.maconi.extension.JacocoCoverageExtension
+import io.hexlet.maconi.extension.libs
 import org.gradle.api.Project
 import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.testing.Test

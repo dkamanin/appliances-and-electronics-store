@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import io.hexlet.maconi.configureBoundedContextRootIsolation
-import io.hexlet.maconi.configureJavaLibrary
+import io.hexlet.maconi.configure.configureBoundedContextRootIsolation
+import io.hexlet.maconi.configure.configureJavaLibrary
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin

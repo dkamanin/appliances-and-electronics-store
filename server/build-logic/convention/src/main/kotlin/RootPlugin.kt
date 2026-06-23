@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-import io.hexlet.maconi.JacocoAggregationExtension
-import io.hexlet.maconi.configureSpotlessForRoot
-import io.hexlet.maconi.registerJacocoAggregation
+import io.hexlet.maconi.configure.configureSpotlessForRoot
+import io.hexlet.maconi.configure.registerJacocoAggregation
+import io.hexlet.maconi.extension.JacocoAggregationExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

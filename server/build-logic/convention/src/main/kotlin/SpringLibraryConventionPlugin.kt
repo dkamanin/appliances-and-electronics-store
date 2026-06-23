@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import io.hexlet.maconi.configureSpring
+import io.hexlet.maconi.configure.configureSpring
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

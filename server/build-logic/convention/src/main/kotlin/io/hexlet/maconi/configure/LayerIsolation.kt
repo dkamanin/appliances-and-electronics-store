@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-package io.hexlet.maconi
+package io.hexlet.maconi.configure
 
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
